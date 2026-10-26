@@ -1,4 +1,7 @@
 ---
+# Private JIT only, including framework and custom safe-output jobs.
+runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 name: Manifest Metadata Review
 description: >-
   Experimental author-assist review of new-package metadata, changed
@@ -364,7 +367,7 @@ safe-outputs:
   jobs:
     post-manifest-metadata-comment:
       description: Post the bounded metadata review to the fixed pull request.
-      runs-on: ubuntu-slim
+      runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
       needs: detection
       if: >-
         needs.detection.result == 'success' &&

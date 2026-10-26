@@ -1,4 +1,7 @@
 ---
+# Private JIT only, including framework and custom safe-output jobs.
+runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🌐
 name: Domain Validation Assist
 description: >-
@@ -303,7 +306,7 @@ safe-outputs:
       description: >-
         Post the one validated domain-assist comment to the triggering pull
         request from structured, evidence-bound fields.
-      runs-on: ubuntu-slim
+      runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
       needs: detection
       if: >-
         needs.detection.result == 'success' &&

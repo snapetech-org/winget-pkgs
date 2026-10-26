@@ -1,3 +1,4 @@
+# ng-runner-policy: private-jit-only-v1
 name: Spell Checking
 
 # Comment management is handled through a secondary job, for details see:
@@ -58,7 +59,7 @@ jobs:
       actions: read
     outputs:
       followup: ${{ steps.spelling.outputs.followup }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-spelling"]}}', github.run_id)) }}
     if: "contains(github.event_name, 'pull_request') || github.event_name == 'push'"
     concurrency:
       group: spelling-${{ github.event.pull_request.number || github.ref }}
@@ -84,7 +85,7 @@ jobs:
   comment-push:
     name: Report (Push)
     # If your workflow isn't running on push, you can remove this job
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-comment-push"]}}', github.run_id)) }}
     needs: spelling
     permissions:
       contents: write
@@ -100,7 +101,7 @@ jobs:
   comment-pr:
     name: Report (PR)
     # If you workflow isn't running on pull_request*, you can remove this job
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-comment-pr"]}}', github.run_id)) }}
     needs: spelling
     permissions:
       pull-requests: write

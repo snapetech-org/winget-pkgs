@@ -1,4 +1,7 @@
 ---
+# Private JIT only, including framework and custom safe-output jobs.
+runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🖼️
 name: Unattended Artifact Triage
 description: >-
@@ -300,7 +303,7 @@ safe-outputs:
   jobs:
     post-unattended-artifact-comment:
       description: Post one fixed-target unattended artifact routing comment
-      runs-on: ubuntu-slim
+      runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
       if: >-
         needs.detection.result == 'success' &&
         needs.detection.outputs.detection_success == 'true'

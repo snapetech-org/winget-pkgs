@@ -1,3 +1,4 @@
+# ng-runner-policy: private-jit-only-v1
 name: PSScriptAnalyzer
 
 on:
@@ -20,7 +21,7 @@ permissions:
 
 jobs:
   analyze:
-    runs-on: windows-latest
+    runs-on: ${{ fromJSON(format('{{"group":"packer-windows","labels":["self-hosted","Windows","X64","packer-windows","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-analyze"]}}', github.run_id)) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0

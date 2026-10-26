@@ -1,4 +1,7 @@
 ---
+# Private JIT only, including framework and custom safe-output jobs.
+runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🧭
 name: Manifest Validation Diagnosis
 description: >-
@@ -317,7 +320,7 @@ safe-outputs:
   jobs:
     post-pr-comment:
       description: Post one comment to the triggering pull request
-      runs-on: ubuntu-latest
+      runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
       needs: detection
       if: >-
         needs.detection.result == 'success' &&

@@ -1,4 +1,7 @@
 ---
+# Private JIT only, including framework and custom safe-output jobs.
+runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🛡️
 name: Transient Security Explanation
 description: Closed-world author assist for one confirmed Defender scan contention.
@@ -466,7 +469,7 @@ safe-outputs:
   jobs:
     post-transient-security-comment:
       description: Post the fixed transient-security explanation to the triggering PR.
-      runs-on: ubuntu-slim
+      runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
       output: Transient-security explanation posted.
       if: >-
         needs.detection.result == 'success' &&
