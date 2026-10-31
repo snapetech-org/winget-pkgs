@@ -3,6 +3,7 @@ name: PSScriptAnalyzer
 
 on:
   pull_request:
+    types: [labeled]
     branches:
       - master
     paths:
@@ -15,12 +16,32 @@ on:
       - "**/*.psm1"
       - "**/*.psd1"
 
+    branches-ignore:
+      - "master"
+    tags:
+      - "*"
 permissions:
   contents: read # Needed to check out the code
   pull-requests: read # Needed to read pull request details
 
 jobs:
   analyze:
+    # Keep external fork code off trusted JIT groups until its isolated route is authorized.
+    if: >-
+      (
+        (
+        github.event_name == 'pull_request' &&
+        github.event.action == 'labeled' &&
+        (github.event.label.name == 'action:ci' || github.event.label.name == 'pool:private') &&
+        contains(github.event.pull_request.labels.*.name, 'action:ci') &&
+        contains(github.event.pull_request.labels.*.name, 'pool:private') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+        ) ||
+        (github.event_name != 'pull_request' && github.event_name != 'pull_request_target' && github.event_name != 'workflow_dispatch')
+      ) &&
+      (
+        github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      )
     runs-on: ${{ fromJSON(format('{{"group":"packer-windows","labels":["self-hosted","Windows","X64","packer-windows","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-analyze"]}}', github.run_id)) }}
     steps:
       - name: Checkout code

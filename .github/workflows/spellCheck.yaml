@@ -38,6 +38,7 @@ on:
   push:
     branches:
       - "**"
+      - "!master"
     tags-ignore:
       - "**"
   pull_request_target:
@@ -45,11 +46,7 @@ on:
       - "**"
     tags-ignore:
       - "**"
-    types:
-      - 'opened'
-      - 'reopened'
-      - 'synchronize'
-
+    types: [labeled]
 jobs:
   spelling:
     name: Check Spelling
@@ -60,7 +57,21 @@ jobs:
     outputs:
       followup: ${{ steps.spelling.outputs.followup }}
     runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-spelling"]}}', github.run_id)) }}
-    if: "contains(github.event_name, 'pull_request') || github.event_name == 'push'"
+    if: >-
+      (
+        (
+        github.event_name == 'pull_request_target' &&
+        github.event.action == 'labeled' &&
+        (github.event.label.name == 'action:ci' || github.event.label.name == 'pool:private') &&
+        contains(github.event.pull_request.labels.*.name, 'action:ci') &&
+        contains(github.event.pull_request.labels.*.name, 'pool:private') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+        ) ||
+        (github.event_name != 'pull_request' && github.event_name != 'pull_request_target' && github.event_name != 'workflow_dispatch')
+      ) &&
+      (
+        "contains(github.event_name, 'pull_request') || github.event_name == 'push'"
+      )
     concurrency:
       group: spelling-${{ github.event.pull_request.number || github.ref }}
       # note: If you use only_check_changed_files, you do not want cancel-in-progress
@@ -89,7 +100,21 @@ jobs:
     needs: spelling
     permissions:
       contents: write
-    if: (success() || failure()) && needs.spelling.outputs.followup && github.event_name == 'push'
+    if: >-
+      (
+        (
+        github.event_name == 'pull_request_target' &&
+        github.event.action == 'labeled' &&
+        (github.event.label.name == 'action:ci' || github.event.label.name == 'pool:private') &&
+        contains(github.event.pull_request.labels.*.name, 'action:ci') &&
+        contains(github.event.pull_request.labels.*.name, 'pool:private') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+        ) ||
+        (github.event_name != 'pull_request' && github.event_name != 'pull_request_target' && github.event_name != 'workflow_dispatch')
+      ) &&
+      (
+        (success() || failure()) && needs.spelling.outputs.followup && github.event_name == 'push'
+      )
     steps:
     - name: comment
       uses: check-spelling/check-spelling@cfb6f7e75bbfc89c71eaa30366d0c166f1bd9c8c # v0.0.26
@@ -105,7 +130,21 @@ jobs:
     needs: spelling
     permissions:
       pull-requests: write
-    if: (success() || failure()) && needs.spelling.outputs.followup && contains(github.event_name, 'pull_request')
+    if: >-
+      (
+        (
+        github.event_name == 'pull_request_target' &&
+        github.event.action == 'labeled' &&
+        (github.event.label.name == 'action:ci' || github.event.label.name == 'pool:private') &&
+        contains(github.event.pull_request.labels.*.name, 'action:ci') &&
+        contains(github.event.pull_request.labels.*.name, 'pool:private') &&
+        github.event.pull_request.head.repo.full_name == github.repository
+        ) ||
+        (github.event_name != 'pull_request' && github.event_name != 'pull_request_target' && github.event_name != 'workflow_dispatch')
+      ) &&
+      (
+        (success() || failure()) && needs.spelling.outputs.followup && contains(github.event_name, 'pull_request')
+      )
     steps:
     - name: comment
       uses: check-spelling/check-spelling@cfb6f7e75bbfc89c71eaa30366d0c166f1bd9c8c # v0.0.26

@@ -90,7 +90,7 @@ jobs:
       needs.pre_activation.outputs.activated == 'true' && (github.event_name == 'pull_request_target' && github.event.action == 'labeled' &&
       github.event.label.name == 'Validation-Defender-Error' && github.actor == 'wingetvalidator-prod[bot]' &&
       github.event.pull_request.user.login != 'wingetbot')
-    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-activation"]}}', github.run_id)) }}
     permissions:
       actions: read
       contents: read
@@ -394,7 +394,7 @@ jobs:
   agent:
     needs: activation
     if: needs.activation.outputs.daily_ai_credits_exceeded != 'true'
-    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-agent"]}}', github.run_id)) }}
     permissions:
       checks: read
       contents: read
@@ -1080,7 +1080,7 @@ jobs:
       always() && (needs.agent.result != 'skipped' || needs.activation.outputs.lockdown_check_failed == 'true' ||
       needs.activation.outputs.oauth_token_check_failed == 'true' || needs.activation.outputs.stale_lock_file_failed == 'true' ||
       needs.activation.outputs.daily_ai_credits_exceeded == 'true')
-    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-conclusion"]}}', github.run_id)) }}
     permissions:
       actions: write
     concurrency:
@@ -1321,7 +1321,7 @@ jobs:
       - activation
       - agent
     if: always() && needs.agent.result != 'skipped'
-    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-detection"]}}', github.run_id)) }}
     permissions:
       contents: read
       copilot-requests: write
@@ -1587,7 +1587,7 @@ jobs:
     if: >
       (!cancelled()) && needs.agent.result != 'skipped' && contains(needs.agent.outputs.output_types, 'post_transient_security_comment') &&
       (needs.detection.result == 'success' && needs.detection.outputs.detection_success == 'true')
-    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-post_transient_security_comment"]}}', github.run_id)) }}
     permissions:
       checks: read
       pull-requests: write
@@ -1920,7 +1920,7 @@ jobs:
     if: >
       github.event_name == 'pull_request_target' && github.event.action == 'labeled' && github.event.label.name == 'Validation-Defender-Error' &&
       github.actor == 'wingetvalidator-prod[bot]' && github.event.pull_request.user.login != 'wingetbot'
-    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}","gha-{0}-pre_activation"]}}', github.run_id)) }}
     env:
       GH_AW_RUNTIME_FEATURES: ${{ vars.GH_AW_RUNTIME_FEATURES }}
     outputs:
