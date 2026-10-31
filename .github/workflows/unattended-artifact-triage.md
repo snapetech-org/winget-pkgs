@@ -4,12 +4,26 @@ runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hos
 runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🖼️
 name: Unattended Artifact Triage
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}', inputs.action, inputs.runner_pool) ||
+      format('action:triage:pool:private') }}
 description: >-
   Routes safe screenshot metadata from a trusted unattended validation
   operation to moderators without downloading or interpreting artifacts.
 on:
   workflow_dispatch:
     inputs:
+      action:
+        description: Required private JIT route action
+        required: true
+        type: choice
+        options: [triage]
+      runner_pool:
+        description: Required private JIT runner pool
+        required: true
+        type: choice
+        options: [private]
       pull_request_number:
         description: Pull request number to triage
         required: true
@@ -291,7 +305,8 @@ network:
 tools:
   bash: ["cat"]
 safe-outputs:
-  threat-detection: true
+  threat-detection:
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
   report-failure-as-issue: false
   report-failed-jobs: false
   report-incomplete:

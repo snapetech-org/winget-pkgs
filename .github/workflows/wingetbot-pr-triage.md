@@ -4,6 +4,10 @@ runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hos
 runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🤖
 name: Wingetbot PR Triage
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}', inputs.action, inputs.runner_pool) ||
+      format('action:triage:pool:private') }}
 description: >-
   Experimental moderator-assist triage for wingetbot-authored auto-update PRs.
   Classifies one validation result from PR metadata, comments, and trusted
@@ -14,6 +18,16 @@ on:
     types: [assigned, labeled]
   workflow_dispatch:
     inputs:
+      action:
+        description: Required private JIT route action
+        required: true
+        type: choice
+        options: [triage]
+      runner_pool:
+        description: Required private JIT runner pool
+        required: true
+        type: choice
+        options: [private]
       pull_request_number:
         description: wingetbot pull request number for a targeted trial
         required: false
@@ -268,7 +282,8 @@ tools:
 safe-outputs:
   messages:
     footer: "###### Template: msftbot/moderatorAssist/wingetbotTriage by [{workflow_name}]({run_url})"
-  threat-detection: true
+  threat-detection:
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
   report-failure-as-issue: false
   report-incomplete:
     create-issue: false

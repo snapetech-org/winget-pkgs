@@ -3,6 +3,10 @@
 runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 name: Manifest Metadata Review
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}', inputs.action, inputs.runner_pool) ||
+      format('action:review:pool:private') }}
 description: >-
   Experimental author-assist review of new-package metadata, changed
   AppsAndFeatures fields, and conservative SPDX normalization. Posts at most
@@ -12,6 +16,16 @@ on:
     types: [labeled]
   workflow_dispatch:
     inputs:
+      action:
+        description: Required private JIT route action
+        required: true
+        type: choice
+        options: [review]
+      runner_pool:
+        description: Required private JIT runner pool
+        required: true
+        type: choice
+        options: [private]
       pull_request_number:
         description: Pull request number for a targeted trial
         required: false
@@ -355,7 +369,8 @@ tools:
     min-integrity: none
   bash: ["cat"]
 safe-outputs:
-  threat-detection: true
+  threat-detection:
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
   report-failure-as-issue: false
   report-failed-jobs: false
   report-incomplete:

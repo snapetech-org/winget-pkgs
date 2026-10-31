@@ -4,6 +4,10 @@ runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hos
 runs-on-slim: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
 emoji: 🔄
 name: Label Reconciliation Assist
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}', inputs.action, inputs.runner_pool) ||
+      format('action:reconcile:pool:private') }}
 description: >-
   Experimental moderator-assist for stale Highest-Version-Removal and
   Needs-CLA labels. Read-only except for one fixed-target advisory comment.
@@ -12,6 +16,16 @@ on:
     types: [labeled]
   workflow_dispatch:
     inputs:
+      action:
+        description: Required private JIT route action
+        required: true
+        type: choice
+        options: [reconcile]
+      runner_pool:
+        description: Required private JIT runner pool
+        required: true
+        type: choice
+        options: [private]
       target_pull_request:
         description: Open Highest-Version-Removal or Needs-CLA pull request
         required: true
@@ -250,7 +264,8 @@ tools:
     min-integrity: none
   bash: ["cat"]
 safe-outputs:
-  threat-detection: true
+  threat-detection:
+    runs-on: ${{ fromJSON(format('{{"group":"ng-shared-main-jit","labels":["self-hosted","linux","x64","ng-shared-main-winget-pkgs","ng-main-run-{0}"]}}', github.run_id)) }}
   report-failure-as-issue: false
   report-failed-jobs: false
   report-incomplete:
