@@ -79,8 +79,11 @@ concurrency:
   group: gh-aw-${{ github.workflow }}-${{ github.event.inputs.pull_request_number }}
   queue: max
 
-run-name: "Unattended Artifact Triage"
-
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/') &&
+      format('action:{0}:pool:{1}:tag:{2}', 'review', 'private', github.ref_name) ||
+      github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}', 'review', 'private') || format('action:review:pool:private') }}
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.GH_AW_DEFAULT_OTLP_ENDPOINT }}
   OTEL_SERVICE_NAME: gh-aw.unattended-artifact-triage

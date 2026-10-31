@@ -83,8 +83,11 @@ concurrency:
   group: gh-aw-${{ github.workflow }}-${{ github.event.pull_request.number || github.event.inputs.pull_request_number || fromJSON(github.event.inputs.aw_context || '{}').item_number || github.run_id }}
   queue: max
 
-run-name: "Wingetbot PR Triage"
-
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/') &&
+      format('action:{0}:pool:{1}:tag:{2}:wingetbot-pr-triage', 'review', 'private', github.ref_name) ||
+      github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}:wingetbot-pr-triage', 'review', 'private') || format('action:review:pool:private:wingetbot-pr-triage') }}
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.GH_AW_DEFAULT_OTLP_ENDPOINT }}
   OTEL_SERVICE_NAME: gh-aw.wingetbot-pr-triage

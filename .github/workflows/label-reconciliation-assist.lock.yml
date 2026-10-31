@@ -84,8 +84,11 @@ concurrency:
   group: gh-aw-${{ github.workflow }}-${{ github.event.pull_request.number || github.event.inputs.target_pull_request || github.run_id }}
   queue: max
 
-run-name: "Label Reconciliation Assist"
-
+run-name: >-
+  ${{ github.event_name == 'workflow_dispatch' && startsWith(github.ref, 'refs/tags/') &&
+      format('action:{0}:pool:{1}:tag:{2}', 'ci', 'private', github.ref_name) ||
+      github.event_name == 'workflow_dispatch' &&
+      format('action:{0}:pool:{1}', 'ci', 'private') || format('action:ci:pool:private') }}
 env:
   OTEL_EXPORTER_OTLP_ENDPOINT: ${{ vars.GH_AW_DEFAULT_OTLP_ENDPOINT }}
   OTEL_SERVICE_NAME: gh-aw.label-reconciliation-assist
