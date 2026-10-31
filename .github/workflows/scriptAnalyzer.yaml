@@ -3,41 +3,29 @@
 name: PSScriptAnalyzer
 
 
-run-name: >-
-  ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') &&
-      format('action:ci:pool:private:tag:{0}', github.ref_name) || format('action:ci:pool:private') }}
+run-name: ${{ format('action:{0}:pool:{1}', inputs.action, inputs.runner_pool) }}
 on:
-  pull_request:
-    types: [labeled]
-    branches:
-      - master
-    paths:
-      - "**/*.ps1"
-      - "**/*.psm1"
-      - "**/*.psd1"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Run PSScriptAnalyzer on the private Windows JIT pool
+        required: true
+        type: choice
+        options: [ci]
+      runner_pool:
+        description: Select the private ephemeral runner pool
+        required: true
+        type: choice
+        options: [private]
 
 permissions:
   contents: read # Needed to check out the code
-  pull-requests: read # Needed to read pull request details
 
 jobs:
   analyze:
-    # Keep external fork code off trusted JIT groups until its isolated route is authorized.
+    # Manual dispatch is restricted to the default branch and the private JIT pool.
     if: >-
-      (
-        (
-        github.event_name == 'pull_request' &&
-        github.event.action == 'labeled' &&
-        (github.event.label.name == 'action:ci' || github.event.label.name == 'pool:private') &&
-        contains(github.event.pull_request.labels.*.name, 'action:ci') &&
-        contains(github.event.pull_request.labels.*.name, 'pool:private') &&
-        github.event.pull_request.head.repo.full_name == github.repository
-        ) ||
-        (github.event_name != 'pull_request' && github.event_name != 'pull_request_target' && github.event_name != 'workflow_dispatch')
-      ) &&
-      (
-        github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
-      )
+      github.event_name == 'workflow_dispatch' && inputs.action == 'ci' && inputs.runner_pool == 'private' && github.ref == 'refs/heads/master'
     runs-on: ${{ fromJSON(format('{{"group":"packer-windows","labels":["self-hosted","Windows","X64","on-demand","packer-windows","winget-pkgs","gha-{0}-analyze"]}}', github.run_id)) }}
     steps:
       - name: Checkout code
