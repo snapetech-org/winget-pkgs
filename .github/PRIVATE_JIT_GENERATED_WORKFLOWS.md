@@ -1,25 +1,30 @@
 # Private JIT for generated workflows
 
-The owner requires private ephemeral JIT for every repository. The nine agentic
-workflow Markdown sources now explicitly set both `runs-on` and `runs-on-slim`;
-custom safe-output jobs also select the private group. This syntax is supported
-by the currently pinned gh-aw v0.88.7. Updating only the lock files would allow
-the compiler defaults to restore hosted runners.
+All nine agentic workflow Markdown sources select private Linux x64 JIT through
+`runs-on` and `runs-on-slim`. Threat detection uses the same private runner
+pool. The checked-in lock files must keep both the shared run label and a
+job-specific `gha-<run_id>-<job_id>` label so the broker assigns each ephemeral
+guest to the matching generated job.
 
-The checked-in lock files have a routing-only override to the same private,
-repository/run-scoped labels. Their application steps, permissions, action
-pins and container digests are preserved. They were parsed and inspected,
-but were **not regenerated with gh-aw** in the editing environment, which has
-no gh-aw executable. Existing compiler metadata is retained as historical
-generation metadata; it is not evidence of a new compile.
+`runs-on-slim` is a workflow-wide setting in gh-aw: it routes the generated
+framework jobs, but it cannot give each one a different broker label. Raw
+`gh aw compile` therefore regenerates the private group while dropping the
+job-specific labels. Do not use it directly to refresh checked-in locks.
 
-Before the next agentic workflow rollout, run `gh aw compile` with v0.88.7 on
-private Linux JIT, review the generated changes and refreshed hashes, and
-verify every generated job still selects private capacity. Preserve these
-frontmatter runner settings. If a future compiler supports
-`require_self_hosted_runners`, enable it after verifying that version's schema.
-Do not upgrade the compiler or substitute a hosted runner to bypass this check.
+Use the repository wrapper, which pins the compiler to gh-aw v0.88.7, compiles
+the selected Markdown sources, and reproducibly restores and verifies the
+job-scoped labels:
 
-Runner-group admission, isolated PR handling, Docker/egress compatibility and
-runtime validation are separate deployment requirements. The source override
-does not claim that those requirements or a live agentic run have passed.
+```sh
+python3 scripts/compile-agentic-workflows.py elevation-requirement-review label-reconciliation-assist manifest-metadata-review unattended-artifact-triage wingetbot-pr-triage
+```
+
+With no workflow IDs, the wrapper compiles all Markdown sources. It fails if
+the compiler version changes, a generated job lacks the private group/run
+labels, or a lock file is missing. Review the generated diff before committing.
+
+The source frontmatter and generated locks must retain private routing; never
+restore a hosted runner or fallback. The runner policy is separate from broker
+admission, runner-group access, isolated PR execution, and live capacity. See
+the [official gh-aw self-hosted runner reference](https://github.github.com/gh-aw/reference/self-hosted-runners/)
+for how `runs-on`, `runs-on-slim`, and safe-output runner overrides are applied.
