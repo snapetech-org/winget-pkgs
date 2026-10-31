@@ -21,7 +21,8 @@ python3 scripts/compile-agentic-workflows.py elevation-requirement-review label-
 
 With no workflow IDs, the wrapper compiles all Markdown sources. It fails if
 the compiler version changes, a generated job lacks the private group/run
-labels, or a lock file is missing. Review the generated diff before committing.
+labels, a manual workflow loses its required private action/pool inputs or
+run-name, or a lock file is missing. Review the generated diff before committing.
 
 The source frontmatter and generated locks must retain private routing; never
 restore a hosted runner or fallback. The runner policy is separate from broker
